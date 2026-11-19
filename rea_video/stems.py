@@ -14,6 +14,7 @@ from pathlib import Path
 
 import numpy as np
 
+from .ort_providers import providers
 from .util import fetch, sha256_file
 
 LOG = logging.getLogger(__name__)
@@ -62,12 +63,12 @@ def _session():
     import onnxruntime as ort
 
     try:
-        return ort.InferenceSession(str(ensure_model()), providers=["CPUExecutionProvider"])
+        return ort.InferenceSession(str(ensure_model()), providers=providers())
     except Exception as e:  # corrupted cache (e.g. an older interrupted download): fetch again once
         if "protobuf" not in str(e).lower() and "load model" not in str(e).lower():
             raise
         LOG.warning("cached stem model is unreadable (%s); downloading again", str(e)[:120])
-        return ort.InferenceSession(str(ensure_model(force=True)), providers=["CPUExecutionProvider"])
+        return ort.InferenceSession(str(ensure_model(force=True)), providers=providers())
 
 
 def load_stereo(path: str | Path) -> np.ndarray | None:

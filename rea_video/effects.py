@@ -14,6 +14,8 @@ from pathlib import Path
 
 import numpy as np
 
+from .ort_providers import providers
+
 LOG = logging.getLogger(__name__)
 
 MODEL_NAME = "bandit-v2-multi.onnx"
@@ -89,7 +91,7 @@ def extract_effects(src: str | Path, out_dir: str | Path) -> dict:
     try:
         import onnxruntime as ort
 
-        session = ort.InferenceSession(str(ensure_model()), providers=["CPUExecutionProvider"])
+        session = ort.InferenceSession(str(ensure_model()), providers=providers())
     except Exception as e:  # offline / no onnxruntime: the report falls back to effects found on the mix
         LOG.warning("effects separation unavailable: %s", e)
         return {"ok": False, "reason": f"{type(e).__name__}: {e}"}
